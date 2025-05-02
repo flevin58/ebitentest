@@ -7,6 +7,26 @@ Please install devd to serve the web files.
 You can find it on github at https://github.com/cortesi/devd.git
 endef
 
+define HELP_MESSAGE
+
+Usage: make [target]
+
+Targets:
+  all        - Build wasm and native binary (same as 'make web build')
+  build      - Build native binary
+  clean      - Clean up generated files
+  help       - Show this help message
+  run        - Runs the native binary
+  serve      - Serve the web files using devd (must be installed)
+  web        - Build only for the web (wasm)
+endef
+
+.PHONY: all web serve clean build run help
+
+help:
+	$(info $(HELP_MESSAGE))
+	@echo
+
 web/game.wasm: main.go
 	@env GOOS=js GOARCH=wasm go build -o $@ .
 
@@ -22,6 +42,16 @@ web/game.html:	resources/game.html
 web: web/game.wasm web/wasm_exec.js web/index.html web/game.html
 	@echo Publishing to the web...
 
+bin/ebitentest: main.go
+	@go build -o bin/ebitentest .
+	
+build: bin/ebitentest
+	@echo Building ebitentest...
+
+run: build
+	@echo Running ebiten test...
+	@./bin/ebitentest
+
 serve: web
 ifeq ($(DEVD),)
 	$(error $(DEV_ERROR))
@@ -31,7 +61,9 @@ endif
 clean:
 	@echo Removing 'web' folder
 	@rm -rf web
+	@echo Removing 'bin' folder
+	@rm -rf bin
 
-all: web
+all: web build
 
-.PHONY: all web serve clean
+.DEFAULT_GOAL := help
