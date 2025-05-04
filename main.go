@@ -15,45 +15,29 @@
 package main
 
 import (
-	"image"
 	_ "image/png"
 	"log"
 
-	"github.com/flevin58/ebitentest/resources"
+	"github.com/flevin58/ebitentest/player"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 const (
 	screenWidth  = 320
 	screenHeight = 240
-
-	frameOX     = 0
-	frameOY     = 32
-	frameWidth  = 32
-	frameHeight = 32
-	frameCount  = 8
-)
-
-var (
-	runnerImage *ebiten.Image
 )
 
 type Game struct {
-	count int
+	player *player.Player
 }
 
 func (g *Game) Update() error {
-	g.count++
+	g.player.Update()
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(-float64(frameWidth)/2, -float64(frameHeight)/2)
-	op.GeoM.Translate(screenWidth/2, screenHeight/2)
-	i := (g.count / 5) % frameCount
-	sx, sy := frameOX+i*frameWidth, frameOY
-	screen.DrawImage(runnerImage.SubImage(image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)).(*ebiten.Image), op)
+	g.player.Draw(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -61,11 +45,13 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func main() {
-	// Decode an image from the image file's byte slice.
-	runnerImage = resources.GetImage("images/runner/runner.png")
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
 	ebiten.SetWindowTitle("Animation (Ebitengine Demo)")
-	if err := ebiten.RunGame(&Game{}); err != nil {
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
+	game := &Game{
+		player: player.New(),
+	}
+	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
 }
