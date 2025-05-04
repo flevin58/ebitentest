@@ -15,13 +15,11 @@
 package main
 
 import (
-	"bytes"
 	"image"
 	_ "image/png"
 	"log"
 
-	"github.com/flevin58/ebitentest/resources/images"
-
+	"github.com/flevin58/ebitentest/resources"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -64,12 +62,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func main() {
 	// Decode an image from the image file's byte slice.
-	img, _, err := image.Decode(bytes.NewReader(images.Runner_png))
-	if err != nil {
-		log.Fatal(err)
-	}
-	runnerImage = ebiten.NewImageFromImage(img)
-
+	runnerImage = resources.GetImage("images/runner/runner.png")
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
 	ebiten.SetWindowTitle("Animation (Ebitengine Demo)")
 	if err := ebiten.RunGame(&Game{}); err != nil {
